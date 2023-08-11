@@ -120,12 +120,11 @@ class APPSBaseDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
 
         raw_samples = self.pack_samples(idx)
-        output_samples = sample_gpt_task(
+        return sample_gpt_task(
             raw_samples,
             max_tokens=self.max_tokens,
             tokenizer=self.tokenizer,
         )
-        return output_samples
 
 
 def sample_gpt_task(raw_samples, max_tokens, tokenizer):

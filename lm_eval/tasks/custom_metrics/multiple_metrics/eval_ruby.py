@@ -12,13 +12,12 @@ def eval_script(path: Path):
         output = subprocess.run(
             ["ruby", path], check=True, capture_output=True, timeout=5
         )
-        if output.returncode == 0:
-            status = "OK"
-            out = output.stderr
-            error = output.stdout
-            returncode = 0
-        else:
+        if output.returncode != 0:
             raise Exception("there's an issue with check = True for Ruby, INVESTIGATE!")
+        status = "OK"
+        out = output.stderr
+        error = output.stdout
+        returncode = 0
     except subprocess.TimeoutExpired as exc:
         status = "Timeout"
         out = exc.stdout
@@ -29,10 +28,7 @@ def eval_script(path: Path):
         out = exc.stdout
         error = exc.stderr
         # failure with code 1 but no error message is an Exception from Failed tests
-        if len(error) < 1:
-            status = "Exception"
-        else:  # everything that prints out an error message is a SyntaxError
-            status = "SyntaxError"
+        status = "Exception" if len(error) < 1 else "SyntaxError"
     return {
         "status": status,
         "exit_code": returncode,

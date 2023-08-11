@@ -88,21 +88,21 @@ def compute(
             and not r[1]["result"].startswith("failed:")
         ]
         # if all generations are failed - default to empty str for soring
-        eval_answers = [""] if len(eval_answers) == 0 else eval_answers
+        eval_answers = [""] if not eval_answers else eval_answers
         if majority_voting:
             counter = Counter(eval_answers)
             eval_answers = [counter.most_common()[0][0]]
 
         if not majority_voting and len(eval_answers) > 1:
             warnings.warn(
-                f"Multiple generations found for a task without setting `majority_voting` to True, defaulting answers from first generation"
+                "Multiple generations found for a task without setting `majority_voting` to True, defaulting answers from first generation"
             )
         answers[task_id] = eval_answers[0]
 
     scores = []
     # Number of code generated that failed execution.
     errored = 0
-    for task_id, (ans, ref) in enumerate(zip(answers, references)):
+    for ans, ref in zip(answers, references):
         try:
             score = 1 if abs(float(ans) - float(ref)) < 1e-3 else 0
         except ValueError as e:

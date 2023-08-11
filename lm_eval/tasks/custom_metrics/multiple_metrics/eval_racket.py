@@ -19,10 +19,7 @@ def eval_script(path: Path):
 
     # rackunit produces exit code 0 even if tests fail.
     if len(result.stderr) > 0 or result.exit_code != 0:
-        if "read-syntax" in result.stderr:
-            status = "SyntaxError"
-        else:
-            status = "Exception"
+        status = "SyntaxError" if "read-syntax" in result.stderr else "Exception"
     else:
         status = "OK"
 

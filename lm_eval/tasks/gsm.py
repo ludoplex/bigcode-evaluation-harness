@@ -90,17 +90,12 @@ class Gsm8k(Task):
         """
         stop_words = ["\n\n\n"]
         requires_execution = True
-        if evaluation_type == EvaluationType.MAJORITY_VOTING:
-            self.majority_voting = True
-        else:
-            self.majority_voting = False
+        self.majority_voting = evaluation_type == EvaluationType.MAJORITY_VOTING
         super().__init__(stop_words, requires_execution)
 
     def get_dataset(self):
         """Returns dataset for the task or an iterable of any object, that get_prompt can handle"""
-        if self.SPLIT:
-            return self.dataset[self.SPLIT]
-        return self.dataset
+        return self.dataset[self.SPLIT] if self.SPLIT else self.dataset
 
     def fewshot_examples(self):
         """Loads and returns the few-shot examples for the task if they exist."""
@@ -114,11 +109,13 @@ class Gsm8k(Task):
     @staticmethod
     def few_shot_prompt(entry, text, examples):
         """Two shot prompt format as source & target language documentation"""
-        prompt = ""
-        for question, solution in zip(
-            examples["questions"][:NUM_SHOTS], examples["solutions"][:NUM_SHOTS]
-        ):
-            prompt += f'''Q: {question}\n\n# solution in Python:\n\n\ndef solution():\n    """{question}"""\n{solution}\n\n\n\n\n\n'''
+        prompt = "".join(
+            f'''Q: {question}\n\n# solution in Python:\n\n\ndef solution():\n    """{question}"""\n{solution}\n\n\n\n\n\n'''
+            for question, solution in zip(
+                examples["questions"][:NUM_SHOTS],
+                examples["solutions"][:NUM_SHOTS],
+            )
+        )
         prompt += f"""Q: {text}\n\n# solution in Python:\n\n\n"""
         return entry + prompt
 
@@ -127,8 +124,7 @@ class Gsm8k(Task):
         text = doc["question"]
         entry = f""
         examples = self.fewshot_examples()
-        prompt = self.few_shot_prompt(entry, text, examples)
-        return prompt
+        return self.few_shot_prompt(entry, text, examples)
 
     @staticmethod
     def parse_target(txt):
@@ -178,12 +174,11 @@ class Gsm8k(Task):
         :param references: list(float)
             list of references
         """
-        results = compute(
+        return compute(
             references=references,
             predictions=generations,
             majority_voting=self.majority_voting,
         )
-        return results
 
 
 class GsmHard(Gsm8k):
@@ -207,8 +202,7 @@ class GsmHard(Gsm8k):
         text = doc["input"]
         entry = ""
         examples = self.fewshot_examples()
-        prompt = self.few_shot_prompt(entry, text, examples)
-        return prompt
+        return self.few_shot_prompt(entry, text, examples)
 
     def get_reference(self, doc):
         return doc["target"]

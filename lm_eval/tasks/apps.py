@@ -80,10 +80,9 @@ class GeneralAPPS(Task):
             prompt += starter_code
         if not fn_name:
             call_format = "\nUse Standard Input format"
-            prompt += call_format
         else:
             call_format = "\nUse Call-Based format"
-            prompt += call_format
+        prompt += call_format
         prompt += "\nANSWER:\n"
         return prompt
 
@@ -115,7 +114,6 @@ class GeneralAPPS(Task):
             list of str containing refrences (not needed for APPS Task)
         """
         code_metric = load("codeparrot/apps_metric")
-        results = code_metric.compute(
+        return code_metric.compute(
             predictions=generations, k_list=[1, 10, 100], level=self.DATASET_NAME
         )
-        return results

@@ -70,7 +70,7 @@ class TokenizedDataset(IterableDataset):
                 raise ValueError(f"Unsupported prompt format: {type(prompt_contents)}")
             prompts.append(prompt)
 
-        if not len(set(infill)) == 1 or not len(set(instruction)) == 1:
+        if len(set(infill)) != 1 or len(set(instruction)) != 1:
             raise ValueError(
                 "Mixed infill/instruction and completion prompts are not supported."
             )
@@ -78,11 +78,7 @@ class TokenizedDataset(IterableDataset):
         global INSTRUCTION_MODE
         INFILL_MODE = infill[0]
         INSTRUCTION_MODE = instruction[0]
-        if INFILL_MODE:
-            return_token_type_ids = False
-        else:
-            return_token_type_ids = None  # default
-
+        return_token_type_ids = False if INFILL_MODE else None
         outputs = self.tokenizer(
             prompts,
             padding=True,
@@ -134,11 +130,14 @@ class TokenizedDataset(IterableDataset):
                 warnings.warn(
                     "Instruction-tuning tokens provided but one or more are empty. Ignore warning if this was intended"
                 )
-        prompt = (
-            prefix + user_token + instruction + end_token + assistant_token + context
+        return (
+            prefix
+            + user_token
+            + instruction
+            + end_token
+            + assistant_token
+            + context
         )
-
-        return prompt
 
 
 def _parse_infill(code, tokenizer):
@@ -171,7 +170,7 @@ def _parse_instruction(code, instruction_tokens):
     _, end_token, assistant_token = instruction_tokens
     if not assistant_token and end_token:
         assistant_token = end_token
-    elif not assistant_token and not end_token:
+    elif not assistant_token:
         return code
 
     idx = code.find(assistant_token)
@@ -301,6 +300,6 @@ def remove_after_return(code):
             and start_match < len(code)
             and code[start_match].strip() != ""
         ):
-            return code[0:start_match]
+            return code[:start_match]
         end_last_match = end_match
     return code

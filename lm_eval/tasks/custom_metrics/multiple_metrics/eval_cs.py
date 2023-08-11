@@ -15,8 +15,8 @@ LANG_EXT = ".cs"
 def eval_script(path: str):
     if ".cs" not in path.name:
         return
-    basename = ".".join(str(path).split(".")[:-1])
-    binaryname = basename + ".exe"
+    basename = ".".join(path.split(".")[:-1])
+    binaryname = f"{basename}.exe"
     build = subprocess.run(
         ["csc", "/d:DEBUG", "-r:System.Numerics.dll", path, f"/out:{binaryname}"],
         capture_output=True,
@@ -46,11 +46,7 @@ def eval_script(path: str):
                 or "Unhandled Exception" in output.stderr
             )
             output.returncode = 1 if fail else 0
-            if output.returncode == 0:
-                status = "OK"
-            else:
-                # Well, it's a panic
-                status = "Exception"
+            status = "OK" if output.returncode == 0 else "Exception"
         except subprocess.TimeoutExpired as exc:
             status = "Timeout"
             output = exc

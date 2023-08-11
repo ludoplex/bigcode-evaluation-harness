@@ -54,10 +54,7 @@ def main():
                         err_msg_line[2:-1],
                     )
                     _file, line_num = matched_parts[1], int(matched_parts[2])
-                    if (
-                        unittest_line_start <= line_num
-                        and line_num <= unittest_line_end
-                    ):
+                    if unittest_line_start <= line_num <= unittest_line_end:
                         print("===============")
                         print(path, "contains error in unit test part")
                         print(error_msgs)
@@ -66,7 +63,7 @@ def main():
         filename = filename.split(".")[0]
         print(f"Dlang,{filename},{status}")
 
-    print(DIR + ":" + str(count))
+    print(f"{DIR}:{count}")
 
 
 if __name__ == "__main__":

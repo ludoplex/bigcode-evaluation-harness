@@ -12,16 +12,12 @@ from .containerized_eval import eval_string_script
 WORKING_DIR = Path(__file__).parent.parent
 
 # program: str => Result
-CACHE = dict()
+CACHE = {}
 CACHE_LOCK = Lock()
 
 
 def cache_get(program: str) -> Optional[dict]:
-    if program in CACHE:
-        result = CACHE[program]
-        return result
-    else:
-        return None
+    return CACHE[program] if program in CACHE else None
 
 
 def cache_set(program: str, result: dict):
@@ -39,7 +35,7 @@ def cached_eval_script(problem, index) -> dict:
         CACHE_LOCK.release()
         return cached
     else:
-        result_yaml = dict()
+        result_yaml = {}
         cache_set(program, result_yaml)
         CACHE_LOCK.release()
         result_dict = eval_string_script(problem["language"], program)
@@ -52,14 +48,10 @@ def cached_eval_script(problem, index) -> dict:
 def get_test_results_json_path(
     output_dir: str, problem_json_path: str, input_dir: Path
 ) -> Path:
-    suffixes = ".results.json"
-    problem_name = problem_json_path[: -len(".json")]
     if input_dir:
         raise ValueError("input dir given")
-        return Path(output_dir) / (
-            problem_json_path.relative_to(input_dir).parent / (problem_name + suffixes)
-        )
-    return Path(output_dir) / (problem_name + suffixes)
+    suffixes = ".results.json"
+    return Path(output_dir) / (problem_json_path[: -len(".json")] + suffixes)
 
 
 def evaluate_problem(

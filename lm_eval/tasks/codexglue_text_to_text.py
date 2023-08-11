@@ -88,8 +88,7 @@ class CodexglueTextToText(Task):
         entry = f"Translate the following documentation from {language.title()} to English:\n"
         examples = self.fewshot_examples()
         examples = examples[language]
-        prompt = self.two_shot_prompt(entry, text, examples, language)
-        return prompt
+        return self.two_shot_prompt(entry, text, examples, language)
 
     def get_reference(self, doc):
         """Builds the reference solution for the doc (sample from the test dataset)."""
@@ -103,8 +102,7 @@ class CodexglueTextToText(Task):
             index of doc in the dataset to which the generation belongs
             (not used for this task)
         """
-        output = generation.split("\nEnglish:\n", 3)[-1].strip()
-        return output
+        return generation.split("\nEnglish:\n", 3)[-1].strip()
 
     def process_results(self, generations, references):
         """Takes the list of LM generations and evaluates them against ground truth references,
@@ -116,7 +114,6 @@ class CodexglueTextToText(Task):
         """
         bleu = load("bleu")
         gens = [gen[0] for gen in generations]
-        results = bleu.compute(
+        return bleu.compute(
             references=references, predictions=gens, max_order=4, smooth=True
         )
-        return results
