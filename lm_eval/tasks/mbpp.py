@@ -55,8 +55,7 @@ class MBPP(Task):
         """
         description = doc["text"]
         test_example = doc["test_list"][0]
-        prompt = f'"""\n{description}\n{test_example}\n"""\n'
-        return prompt
+        return f'"""\n{description}\n{test_example}\n"""\n'
 
     def get_reference(self, doc):
         """Builds the reference solution for the doc (sample from the test dataset)."""

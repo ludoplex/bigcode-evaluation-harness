@@ -72,8 +72,7 @@ class Conala(Task):
         text_column = "rewritten_intent" if doc["rewritten_intent"] else "intent"
         text = doc[text_column].strip()
         entry = "Answer the following instructions in one line of Python code:\n"
-        prompt = self.two_shot_prompt(entry, text, examples)
-        return prompt
+        return self.two_shot_prompt(entry, text, examples)
 
     def get_reference(self, doc):
         """Builds the reference solution for the doc (sample from the test dataset)."""
@@ -87,8 +86,7 @@ class Conala(Task):
             index of doc in the dataset to which the generation belongs
             (not used for this task)
         """
-        output = generation.split("Solution:\n", 3)[-1].strip()
-        return output
+        return generation.split("Solution:\n", 3)[-1].strip()
 
     def process_results(self, generations, references):
         """Takes the list of LM generations and evaluates them against ground truth references,
@@ -100,7 +98,6 @@ class Conala(Task):
         """
         bleu = load("bleu")
         gens = [gen[0] for gen in generations]
-        results = bleu.compute(
+        return bleu.compute(
             references=references, predictions=gens, max_order=4, smooth=True
         )
-        return results

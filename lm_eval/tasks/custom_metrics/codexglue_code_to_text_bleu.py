@@ -74,7 +74,7 @@ def normalize(s):
         s = re.sub(pattern, replace, s)
     s = xml.sax.saxutils.unescape(s, {"&quot;": '"'})
     # language-dependent part (assuming Western languages):
-    s = " %s " % s
+    s = f" {s} "
     if not preserve_case:
         s = s.lower()  # this might not be identical to the original
     for (pattern, replace) in normalize2:
@@ -110,14 +110,10 @@ def cook_test(test, item, n=4):
     encapsulates everything that BLEU needs to know about it."""
     (reflens, refmaxcounts) = item
     test = normalize(test)
-    result = {}
-    result["testlen"] = len(test)
-
+    result = {"testlen": len(test)}
     # Calculate effective reference sentence length.
 
-    if eff_ref_len == "shortest":
-        result["reflen"] = min(reflens)
-    elif eff_ref_len == "average":
+    if eff_ref_len == "average":
         result["reflen"] = float(sum(reflens)) / len(reflens)
     elif eff_ref_len == "closest":
         min_diff = None
@@ -126,6 +122,8 @@ def cook_test(test, item, n=4):
                 min_diff = abs(reflen - len(test))
                 result["reflen"] = reflen
 
+    elif eff_ref_len == "shortest":
+        result["reflen"] = min(reflens)
     result["guess"] = [max(len(test) - k + 1, 0) for k in range(1, n + 1)]
 
     result["correct"] = [0] * n
@@ -190,10 +188,7 @@ def computeMaps(predictions, goldfile):
 
     for row in predictions:
         cols = row.strip().split("\t")
-        if len(cols) == 1:
-            (rid, pred) = (cols[0], "")
-        else:
-            (rid, pred) = (cols[0], cols[1])
+        (rid, pred) = (cols[0], "") if len(cols) == 1 else (cols[0], cols[1])
         predictionMap[rid] = [splitPuncts(pred.strip().lower())]
 
     for i, row in enumerate(gf):
@@ -206,7 +201,7 @@ def computeMaps(predictions, goldfile):
                 goldMap[rid] = []
             goldMap[rid].append(splitPuncts(pred.strip().lower()))
 
-    sys.stderr.write("Total: " + str(len(goldMap)) + "\n")
+    sys.stderr.write(f"Total: {len(goldMap)}" + "\n")
     return (goldMap, predictionMap)
 
 
@@ -226,8 +221,6 @@ def bleuFromMaps(m1, m2):
 
 if __name__ == "__main__":
     reference_file = sys.argv[1]
-    predictions = []
-    for row in sys.stdin:
-        predictions.append(row)
+    predictions = list(sys.stdin)
     (goldMap, predictionMap) = computeMaps(predictions, reference_file)
     print(bleuFromMaps(goldMap, predictionMap)[0])

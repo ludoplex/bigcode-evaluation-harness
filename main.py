@@ -18,15 +18,13 @@ class MultiChoice:
 
     # Simple wildcard support (linux filename patterns)
     def __contains__(self, values):
-        for value in values.split(","):
-            if len(fnmatch.filter(self.choices, value)) == 0:
-                return False
-
-        return True
+        return all(
+            len(fnmatch.filter(self.choices, value)) != 0
+            for value in values.split(",")
+        )
 
     def __iter__(self):
-        for choice in self.choices:
-            yield choice
+        yield from self.choices
 
 
 def parse_args():
@@ -233,11 +231,10 @@ def main():
             padding_side="right",
         )
         if not tokenizer.eos_token:
-            if tokenizer.bos_token:
-                tokenizer.eos_token = tokenizer.bos_token
-                print("bos_token used as eos_token")
-            else:
+            if not tokenizer.bos_token:
                 raise ValueError("No eos_token or bos_token found")
+            tokenizer.eos_token = tokenizer.bos_token
+            print("bos_token used as eos_token")
         tokenizer.pad_token = tokenizer.eos_token
 
         evaluator = Evaluator(accelerator, model, tokenizer, args)

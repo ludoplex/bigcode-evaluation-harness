@@ -155,9 +155,7 @@ class GeneralCodeToText(Task):
 
             prompt_prefix = prompt_prefix.strip().removesuffix(TRIPLE_QUOTE)
             prompt_prefix = prompt_prefix.strip().removesuffix(SINGLE_TRIPLE_QUOTE)
-            prompt = prompt_prefix + prompt_suffix + SUFFIX_PROMPT["python"]
-            return prompt
-
+            return prompt_prefix + prompt_suffix + SUFFIX_PROMPT["python"]
         elif self.DATASET_NAME == "ruby":
             return code + SUFFIX_PROMPT["ruby"]
 
@@ -188,7 +186,7 @@ class GeneralCodeToText(Task):
             (not used for this Task)
         """
         delimiters = {language: SUFFIX_PROMPT["other"] for language in LANGUAGES}
-        delimiters.update(SUFFIX_PROMPT)
+        delimiters |= SUFFIX_PROMPT
         output = generation.split(delimiters[self.DATASET_NAME])[1].strip()
         output = output.split("\n")[0]
         return output

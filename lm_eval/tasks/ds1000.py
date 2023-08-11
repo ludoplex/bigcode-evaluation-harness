@@ -111,16 +111,14 @@ class GeneralDS1000(Task):
         from .ds.ds1000 import DS1000Dataset
 
         data = DS1000Dataset(self._data, mode=self._mode).data
-        if self._key == "All":
-            if self._mode == "Insertion":
-                warnings.warn(
-                    "Insertion not supported for Matplotlib. Only running others."
-                )
-                data = {k: v for k, v in data.items() if k != "Matplotlib"}
-            dataset = list(itertools.chain(*data.values()))
-        else:
-            dataset = data[self._key]
-        return dataset
+        if self._key != "All":
+            return data[self._key]
+        if self._mode == "Insertion":
+            warnings.warn(
+                "Insertion not supported for Matplotlib. Only running others."
+            )
+            data = {k: v for k, v in data.items() if k != "Matplotlib"}
+        return list(itertools.chain(*data.values()))
 
     def get_prompt(self, doc):
         """

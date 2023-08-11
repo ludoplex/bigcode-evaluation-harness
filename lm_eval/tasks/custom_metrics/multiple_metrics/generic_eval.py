@@ -68,24 +68,20 @@ def main(eval_script, language, extension):
         sysexit(1)
 
     files_index = []
-    if len(args.files) > 0:
-        files_index = args.files
-    else:
-        files_index = range(len(files_sorted))
-
+    files_index = args.files if len(args.files) > 0 else range(len(files_sorted))
     total = 0
     passed = 0
     syntax_error = 0
 
     results_file = Path(
-        Path(__file__).parent, "..", "results", language.lower() + ".csv"
+        Path(__file__).parent, "..", "results", f"{language.lower()}.csv"
     ).resolve()
 
     with open(results_file, "w") as f:
         for i in files_index:
             filepath = files_sorted[i]
             if filepath is None:
-                print("File {} does not exist!".format(i))
+                print(f"File {i} does not exist!")
                 continue
             res = eval_script(filepath)
             output = f"{language},{filepath.stem},{res['status']}\n"
@@ -124,23 +120,19 @@ def main_check_stubs(check_script, language, extension):
         sysexit(1)
 
     files_index = []
-    if len(args.files) > 0:
-        files_index = args.files
-    else:
-        files_index = range(len(files_sorted))
-
+    files_index = args.files if len(args.files) > 0 else range(len(files_sorted))
     total = 0
     passed = 0
 
     results_file = Path(
-        Path(__file__).parent, "..", "check_results", language.lower() + ".csv"
+        Path(__file__).parent, "..", "check_results", f"{language.lower()}.csv"
     ).resolve()
 
     with open(results_file, "w") as f:
         for i in files_index:
             filepath = files_sorted[i]
             if filepath is None:
-                print("File {} does not exist!".format(i))
+                print(f"File {i} does not exist!")
                 continue
             res = check_script(filepath)
             output = f"{language},{filepath.stem},{res['status']}\n"

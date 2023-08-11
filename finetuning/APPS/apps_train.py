@@ -37,11 +37,11 @@ def get_args():
 
 def get_dataset(dataset, args):
 
-    train_data = APPSBaseDataset(
-        dataset=dataset, max_tokens=args.max_length, tokenizer_path=args.model_ckpt
+    return APPSBaseDataset(
+        dataset=dataset,
+        max_tokens=args.max_length,
+        tokenizer_path=args.model_ckpt,
     )
-
-    return train_data
 
 
 def run_training(args, train_data, val_data):
@@ -49,7 +49,7 @@ def run_training(args, train_data, val_data):
     model = AutoModelForCausalLM.from_pretrained(args.model_ckpt, use_auth_token=True)
     train_data.start_iteration = 0
 
-    print(f"Starting main loop")
+    print("Starting main loop")
 
     training_args = TrainingArguments(
         output_dir=args.output_dir,

@@ -35,11 +35,7 @@ def eval_script(path: Path):
             # Assumes exit-code 0 is all okay
             output = subprocess.run([basename], capture_output=True, timeout=5)
             returncode = output.returncode
-            if output.returncode == 0:
-                status = "OK"
-            else:
-                # Well, it's a panic
-                status = "Exception"
+            status = "OK" if output.returncode == 0 else "Exception"
         except subprocess.TimeoutExpired as exc:
             status = "Timeout"
             output = exc

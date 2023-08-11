@@ -106,7 +106,7 @@ class InstructHumanEvalWithContext(InstructHumanEval):
 
         function_name = self.get_dataset()["entry_point"][idx]
         func_index = generation.find(f"def {function_name}")
-        return generation[0:func_index] + remove_after_return(generation[func_index:])
+        return generation[:func_index] + remove_after_return(generation[func_index:])
 
 
 class InstructHumanEvalWithoutContext(InstructHumanEval):
@@ -127,12 +127,10 @@ class InstructHumanEvalWithoutContext(InstructHumanEval):
         """
         example = self.get_dataset()[idx]
         prompt, function_name = example["context"], example["entry_point"]
-        prefix = prompt[0 : prompt.find(f"def {function_name}")]
+        prefix = prompt[:prompt.find(f"def {function_name}")]
 
         sep_index = generation.find("```")
-        if sep_index == -1:
-            pass
-        else:
+        if sep_index != -1:
             if (
                 generation[sep_index + len("```") : sep_index + len("```python")]
                 == "python"

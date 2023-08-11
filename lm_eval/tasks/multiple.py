@@ -111,7 +111,7 @@ class GeneralMultiPLE(Task):
     @staticmethod
     def remove_last_block(string, stop_words):
         # Remove the last block of the code containing stop_words for HumanEval
-        string_list = re.split("(%s)" % "|".join(stop_words), string)
+        string_list = re.split(f'({"|".join(stop_words)})', string)
         # last string should be ""
         return "".join(string_list[:-2])
 
@@ -193,9 +193,8 @@ class GeneralMultiPLE(Task):
             if temp_dir.split("/")[-1] != ""
             else temp_dir.split("/")[-2]
         )
-        results = {
+        return {
             f"pass@{k}": v
             for k, v in zip([1, 10, 100], result)
             if k <= len(generations[0])
         }
-        return results
